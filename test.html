@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Fuel Usage Record</title>
+    <meta name="description" content="Recording Fuel Usage">
+    <meta name="author" content="Saleh AL Mahri">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <style>
+        body{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            width: 300px;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <form id="fuelForm" action="save_record.php" method="post">
+        <div class="card">
+            <h2>Fuel Usage Record</h2>
+            <label for="vehicleId">Select Vehicle Id:</label><br>
+            <select name="vehicleId" id="vehicleId" class="sershlist" style="width: 60%;">
+                <option value="A001">A001</option>
+                <option value="A002">A002</option>
+                <option value="A003">A003</option>
+                <option value="A004">A004</option>
+                <option value="A005">A005</option>
+                <option value="A006">A006</option>
+                <option value="A007">A007</option>
+                <option value="A008">A008</option>
+                <option value="A009">A009</option>
+                <option value="A010">A010</option>
+                <option value="A011">A011</option>
+                <option value="A012">A012</option>
+                <option value="A013">A013</option>
+                <option value="A014">A014</option>
+                <option value="A015">A015</option>
+                <option value="A016">A016</option>
+                <option value="A017">A017</option>
+                <option value="A018">A018</option>
+                <option value="A019">A019</option>
+                <option value="A020">A020</option>
+            </select>
+    
+            <br><br>
+    
+            <label for="fuelAmount">Enter Fuel Amount :</label><br>
+            <input type="number" name="fuelAmount" id="fuelAmount" min="0" max="500" placeholder="Enter Fuel amount" style="width: 47%;">
+    
+            <br><br>
+    
+            <button type="button" onclick="submitRecord()">Submit</button>
+        </div>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('.sershlist').select2();
+        });
+
+        function submitRecord() {
+            var vehicleId = document.getElementById("vehicleId").value;
+            var fuelAmount = document.getElementById("fuelAmount").value;
+
+            if (fuelAmount !== "" && fuelAmount >= 0 && fuelAmount <= 500) {
+                // Submit the form
+                $("#fuelForm").submit();
+            } else {
+                alert("Please enter a valid fuel amount (up to 500 liters).");
+            }
+        }
+    </script>
+</body>
+</html>
