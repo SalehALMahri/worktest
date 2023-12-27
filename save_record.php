@@ -1,30 +1,59 @@
 <?php
+// Database connection configuration
+$hostname = "localhost";
+$username = "root";
+$password = "toor";
+$dbname = "test";
 
-
-// Assuming you have a valid database connection
-$host = "feenix-mariadb.swin.edu.au";
-$username = "s104674124";
-$password = "250498";
-$database = "s104674124_db";
-
-$conn = new mysqli($host, $username, $password, $database);
+$conn = new mysqli($hostname, $username, $password, $dbname);
 
 // Check the connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get data from the POST request
-$vehicleId = $_POST['vehicleId'];
-$fuelAmount = $_POST['fuelAmount'];
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $vehicleId = $_POST["vehicleId"];
+    $fuelAmount = $_POST["fuelAmount"];
+    $date = date("Y-m-d");
 
-// Insert data into the FuelUsage table
-$sql = "INSERT INTO FuelUsage (VehicleId, FuelAmount, Date) VALUES ('$vehicleId', '$fuelAmount', NOW())";
+    // Handle photo upload
+    $uploadDir = 'C:/xampp/htdocs/uploads/';
+    $uploadFile = $uploadDir . basename($_FILES['photo']['name']);
 
-if ($conn->query($sql) === TRUE) {
-    echo "Record saved successfully";
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
+    if (move_uploaded_file($_FILES['photo']['tmp_name'], $uploadFile)) {
+        // Retrieve previous RemainingFuel value
+        $sqlCheckFuelUsage = "SELECT RemainingFuel FROM checkfuelusage WHERE WorkerName = 'Ail' ORDER BY ID DESC LIMIT 1";
+        $result = $conn->query($sqlCheckFuelUsage);
+
+        if ($result !== false) {
+            if ($row = $result->fetch_assoc()) {
+                $previousRemainingFuel = $row['RemainingFuel'];
+            } else {
+                // No existing data, assume initial RemainingFuel value
+                $previousRemainingFuel = 20000;
+            }
+
+            // Calculate new RemainingFuel
+            $remainingFuel = $previousRemainingFuel - $fuelAmount;
+
+            // Insert data into fuelusage table
+            $sqlFuelUsage = "INSERT INTO fuelusage (VehicleId, FuelAmount, Date) VALUES ('$vehicleId', $fuelAmount, '$date')";
+            $conn->query($sqlFuelUsage);
+
+            // Insert data into checkfuelusage table
+            $sqlCheckFuelUsage = "INSERT INTO checkfuelusage (WorkerName, FuelTank, VehicleId, FuelAmount, Date, RemainingFuel, PhotoPath) VALUES ('Ail', $previousRemainingFuel, '$vehicleId', $fuelAmount, '$date', $remainingFuel, '$uploadFile')";
+            $conn->query($sqlCheckFuelUsage);
+
+            // Redirect to another page (display page)
+            header("Location: test.html");
+            exit();
+        } else {
+            echo "Error retrieving previous RemainingFuel value: " . $conn->error;
+        }
+    } else {
+        echo "Error uploading photo.";
+    }
 }
 
 $conn->close();
